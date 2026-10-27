@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="학생은 직접 출석 체크하고 선생님은 출결을 확정하는 우리반 출석부 안내 페이지">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>우리반 출석부 소개</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: an opened ledger — ruled hero with a working sample roll call beside a stamped check-in, then plain sections stepping down the page */
+:root {
+  --bg: #eef2f1;
+  --paper: #ffffff;
+  --ink: #1b2523;
+  --muted: #5d6b68;
+  --rule: #d6dfdc;
+  --accent: #1f5e4f;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcebe6;
+  --present: #2f7d4f; --present-bg: #e1f1e6;
+  --late: #a3670b;    --late-bg: #fbeed3;
+  --early: #6a54a8;   --early-bg: #ebe6f7;
+  --skip: #2f6aa3;    --skip-bg: #e0ecf8;
+  --absent: #b23b3b;  --absent-bg: #f8e1e1;
+  --font-display: "Do Hyeon", "IBM Plex Sans KR", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121816; --paper: #1a2220; --ink: #e4ebe9; --muted: #9aa8a4; --rule: #2c3835;
+  --accent: #6cc2a6; --accent-ink: #0d1a16; --accent-soft: #1f3a32;
+  --present: #79cf98; --present-bg: #1c3426; --late: #e8b45a; --late-bg: #3a2d14;
+  --early: #b4a2ec; --early-bg: #2b2540; --skip: #7fb5e8; --skip-bg: #1a2c3e;
+  --absent: #ee8a8a; --absent-bg: #3d1f1f;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121816; --paper: #1a2220; --ink: #e4ebe9; --muted: #9aa8a4; --rule: #2c3835;
+  --accent: #6cc2a6; --accent-ink: #0d1a16; --accent-soft: #1f3a32;
+  --present: #79cf98; --present-bg: #1c3426; --late: #e8b45a; --late-bg: #3a2d14;
+  --early: #b4a2ec; --early-bg: #2b2540; --skip: #7fb5e8; --skip-bg: #1a2c3e;
+  --absent: #ee8a8a; --absent-bg: #3d1f1f;
+  color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.65; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; text-wrap: balance; line-height: 1.15; }
+h1 { font-size: clamp(2.4rem, 6vw, 4rem); }
+h2 { font-size: clamp(1.7rem, 3.4vw, 2.3rem); }
+h3 { font-size: 1.3rem; }
+p { margin: 0; }
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.eyebrow { font-size: 0.8rem; letter-spacing: 0.1em; color: var(--accent); font-weight: 600; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* top bar */
+.bar { padding-block: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { font-family: var(--font-display); font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 50%; border: 2.5px solid var(--accent); color: var(--accent); display: grid; place-items: center; font-size: 0.8rem; transform: rotate(-10deg); }
+.bar nav { display: flex; gap: 18px; flex-wrap: wrap; font-size: 0.92rem; }
+.bar nav a { color: var(--muted); text-decoration: none; }
+.bar nav a:hover { color: var(--ink); }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 10px; font-weight: 600; text-decoration: none; border: 1px solid var(--rule); color: var(--ink); background: var(--paper); cursor: pointer; font: inherit; font-weight: 600; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn:hover { filter: brightness(1.05); }
+
+/* hero */
+.hero { padding-block: 40px 72px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 48px; align-items: center; }
+.hero-copy { display: grid; gap: 22px; min-width: 0; }
+.hero-copy .lede { font-size: 1.12rem; color: var(--muted); max-width: 32em; }
+.hero-copy .ctas { display: flex; gap: 10px; flex-wrap: wrap; }
+.hero-copy .fine { font-size: 0.85rem; color: var(--muted); }
+
+.ledger { position: relative; background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; padding: 18px 18px 10px; min-width: 0;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 51px, var(--rule) 51px 52px); background-position: 0 88px; background-repeat: no-repeat; background-size: 100% calc(100% - 98px); }
+.ledger-head { display: flex; flex-direction: column; align-items: start; gap: 6px; padding-bottom: 12px; padding-right: 90px; }
+.ledger-head h3 { font-size: 1.25rem; }
+.sample-tag { font-size: 0.72rem; letter-spacing: 0.06em; color: var(--muted); border: 1px dashed var(--rule); padding: 2px 8px; border-radius: 999px; }
+.counts { display: flex; flex-wrap: wrap; gap: 6px; padding-bottom: 8px; }
+.chip { display: inline-flex; gap: 5px; align-items: center; padding: 2px 9px; border-radius: 999px; font-size: 0.8rem; font-weight: 500; }
+.chip b { font-family: var(--font-num); font-weight: 500; }
+.s-present { color: var(--present); background: var(--present-bg); }
+.s-late { color: var(--late); background: var(--late-bg); }
+.s-early { color: var(--early); background: var(--early-bg); }
+.s-skip { color: var(--skip); background: var(--skip-bg); }
+.s-absent { color: var(--absent); background: var(--absent-bg); }
+.line { height: 52px; display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.line .no { font-family: var(--font-num); color: var(--muted); text-align: right; font-size: 0.9rem; }
+.line .nm { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.line .nm small { font-weight: 400; color: var(--muted); font-size: 0.75rem; margin-left: 6px; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: var(--paper); }
+.seg button { border: 0; border-left: 1px solid var(--rule); background: transparent; padding: 4px 8px; font: inherit; font-size: 0.8rem; color: var(--muted); cursor: pointer; }
+.seg button:first-child { border-left: 0; }
+.seg button.on { font-weight: 600; }
+.seg button.on.present { background: var(--present-bg); color: var(--present); }
+.seg button.on.late { background: var(--late-bg); color: var(--late); }
+.seg button.on.early { background: var(--early-bg); color: var(--early); }
+.seg button.on.skip { background: var(--skip-bg); color: var(--skip); }
+.seg button.on.absent { background: var(--absent-bg); color: var(--absent); }
+.ledger .stamp { position: absolute; right: -14px; top: -26px; width: 104px; height: 104px; border-radius: 50%; border: 4px solid var(--absent); color: var(--absent); display: grid; place-items: center; text-align: center; font-family: var(--font-display); font-size: 1.15rem; line-height: 1.05; transform: rotate(12deg); background: var(--paper); opacity: .92; pointer-events: none; }
+.ledger .stamp span { font-family: var(--font-num); font-size: 0.7rem; display: block; }
+@media (prefers-reduced-motion: no-preference) { .ledger .stamp { animation: thunk .5s .3s ease-out both; } @keyframes thunk { from { transform: rotate(12deg) scale(1.6); opacity: 0; } to { transform: rotate(12deg) scale(1); opacity: .92; } } }
+
+@media (max-width: 860px) { .hero { grid-template-columns: 1fr; gap: 40px; } }
+@media (max-width: 480px) {
+  .line { grid-template-columns: 1.4rem minmax(0, 1fr); height: auto; padding-block: 8px; }
+  .line .seg { grid-column: 1 / -1; justify-self: start; }
+  .ledger { background-image: none; }
+  .line + .line { border-top: 1px solid var(--rule); }
+  .ledger .stamp { width: 84px; height: 84px; font-size: 0.95rem; right: -6px; }
+}
+
+/* sections */
+section.block { padding-block: 64px; border-top: 1px solid var(--rule); }
+.block-head { display: grid; gap: 10px; max-width: 40em; margin-bottom: 36px; }
+.block-head p { color: var(--muted); }
+
+.roles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.role { background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; padding: 24px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.role .tag { justify-self: start; font-size: 0.8rem; padding: 3px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.role ul { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; }
+.role li::marker { color: var(--accent); }
+@media (max-width: 720px) { .roles { grid-template-columns: 1fr; } }
+
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; counter-reset: step; }
+.step { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.step .n { font-family: var(--font-num); font-size: 0.85rem; color: var(--accent); border-top: 2px solid var(--accent); padding-top: 10px; }
+.step code { font-family: var(--font-num); font-size: 0.85rem; background: var(--accent-soft); padding: 1px 6px; border-radius: 4px; }
+.step pre { margin: 0; font-family: var(--font-num); font-size: 0.85rem; background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; overflow-x: auto; line-height: 1.6; }
+@media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
+
+.codes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.code { border-radius: 10px; padding: 16px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.code h3 { font-size: 1.5rem; }
+.code p { font-size: 0.88rem; color: var(--ink); opacity: .85; }
+@media (max-width: 860px) { .codes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .codes .code:last-child { grid-column: 1 / -1; } }
+.reasons { margin-top: 16px; font-size: 0.92rem; color: var(--muted); }
+
+.table-wrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { padding: 12px 16px; border-bottom: 1px solid var(--rule); text-align: left; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 0.8rem; letter-spacing: 0.05em; color: var(--muted); font-weight: 500; }
+td.y { color: var(--present); font-weight: 600; }
+td.x { color: var(--muted); }
+
+.faq { display: grid; gap: 10px; max-width: 46em; }
+details { background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 18px; }
+summary { cursor: pointer; font-weight: 600; }
+details p { margin-top: 10px; color: var(--muted); }
+
+.final { padding-block: 72px; display: grid; gap: 18px; justify-items: start; border-top: 1px solid var(--rule); }
+.final .url { font-family: var(--font-num); font-size: 0.85rem; color: var(--muted); word-break: break-all; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.final .url button { font: inherit; font-size: 0.8rem; padding: 3px 10px; border-radius: 6px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink); cursor: pointer; }
+footer { padding-block: 24px 40px; font-size: 0.85rem; color: var(--muted); }
+</style>
+
+<div class="wrap">
+  <header class="bar">
+    <div class="brand"><span class="brand-mark">출</span>우리반 출석부</div>
+    <nav aria-label="페이지 안내">
+      <a href="#roles">기능</a>
+      <a href="#start">시작하기</a>
+      <a href="#privacy">공개 범위</a>
+      <a href="#faq">자주 묻는 질문</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-copy">
+      <span class="eyebrow">담임·교과 선생님을 위한 출석부</span>
+      <h1>아침 조회 출석,<br>학생이 찍고<br>선생님이 확정합니다</h1>
+      <p class="lede">학생은 휴대폰으로 자기 이름을 눌러 출석하고, 선생님은 한 화면에서 출석·지각·조퇴·결과·결석을 확정합니다. 월말 통계도 자동으로 계산됩니다.</p>
+      <div class="ctas">
+        <a class="btn primary" href="https://claude.ai/artifact/LGFMZBCt3kPxZDBjJ5KD9g" target="_blank" rel="noopener">출석부 열기</a>
+        <a class="btn" href="#start">3단계로 시작하기</a>
+      </div>
+      <p class="fine">설치 없이 브라우저에서 바로 씁니다. 학교 Claude 계정으로 로그인하면 됩니다.</p>
+    </div>
+
+    <div class="ledger" aria-label="출결 화면 예시">
+      <div class="stamp" aria-hidden="true">결석<span>미인정</span></div>
+      <div class="ledger-head">
+        <h3>10월 27일 (월) 출결</h3>
+        <span class="sample-tag">예시 화면 · 눌러 보세요</span>
+      </div>
+      <div class="counts" id="demo-counts"></div>
+      <div id="demo-rows"></div>
+    </div>
+  </section>
+
+  <section class="block" id="roles">
+    <div class="block-head">
+      <span class="eyebrow">하나의 링크, 두 개의 화면</span>
+      <h2>로그인한 사람에 따라 화면이 달라집니다</h2>
+      <p>같은 주소를 반 전체에 공유해도 선생님에게는 관리 화면이, 학생에게는 출석 체크 화면이 열립니다.</p>
+    </div>
+    <div class="roles">
+      <article class="role">
+        <span class="tag">선생님 화면</span>
+        <h3>출결 · 학생 명단 · 통계</h3>
+        <ul>
+          <li>날짜를 골라 학생마다 출결 상태와 사유를 기록합니다.</li>
+          <li>학생이 직접 체크한 출석은 체크 시각과 함께 밑줄로 표시됩니다. 버튼 한 번으로 확정합니다.</li>
+          <li>‘나머지 모두 출석 처리’로 남은 학생을 한꺼번에 정리합니다.</li>
+          <li>엑셀에서 번호·이름 두 열을 복사해 붙여 넣으면 명단이 만들어집니다.</li>
+          <li>학생별로 선생님만 보는 메모를 남깁니다.</li>
+          <li>월을 고르면 학생별 출결 횟수와 출석률이 나옵니다.</li>
+        </ul>
+      </article>
+      <article class="role">
+        <span class="tag">학생 화면</span>
+        <h3>이름 고르고, 출석 체크</h3>
+        <ul>
+          <li>처음 한 번만 명단에서 자기 이름을 고릅니다.</li>
+          <li>매일 ‘출석 체크’ 버튼만 누르면 시각이 기록되고 도장이 찍힙니다.</li>
+          <li>선생님이 정한 지각 기준 시각이 지나면 지각으로 표시됩니다.</li>
+          <li>이번 달 내 출석 체크 기록을 볼 수 있습니다.</li>
+          <li>다른 친구의 출결이나 선생님 메모는 보이지 않습니다.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="block" id="codes">
+    <div class="block-head">
+      <span class="eyebrow">학교 출결 용어 그대로</span>
+      <h2>다섯 가지 출결 상태</h2>
+      <p>출석이 아닌 상태에는 사유를 함께 기록합니다.</p>
+    </div>
+    <div class="codes">
+      <div class="code s-present"><h3>출석</h3><p>정상 등교. 학생 자가 체크가 기준 시각 안이면 자동으로 잡힙니다.</p></div>
+      <div class="code s-late"><h3>지각</h3><p>기준 시각 이후 등교. 기준 시각은 반 설정에서 바꿉니다.</p></div>
+      <div class="code s-early"><h3>조퇴</h3><p>수업 도중 하교.</p></div>
+      <div class="code s-skip"><h3>결과</h3><p>일부 수업 시간 불참.</p></div>
+      <div class="code s-absent"><h3>결석</h3><p>하루 전체 불참.</p></div>
+    </div>
+    <p class="reasons">사유 선택지: 질병 · 미인정 · 기타 · 출석인정</p>
+  </section>
+
+  <section class="block" id="start">
+    <div class="block-head">
+      <span class="eyebrow">처음 쓰는 선생님께</span>
+      <h2>3단계로 시작하기</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="n">1단계</span>
+        <h3>명단 붙여 넣기</h3>
+        <p>출석부를 열고 ‘학생 명단’ 탭에서 한 줄에 한 명씩 입력합니다. 반 이름과 지각 기준 시각도 정해 주세요.</p>
+        <pre>1 홍길동
+2 김하늘
+3 이도윤</pre>
+      </div>
+      <div class="step">
+        <span class="n">2단계</span>
+        <h3>학생에게 공유하기</h3>
+        <p>페이지 오른쪽 위 <code>공유</code> 메뉴에서 학생들에게 <code>참여자(Contributor)</code> 권한을 줍니다. ‘보기’ 권한으로는 출석 체크를 할 수 없습니다.</p>
+      </div>
+      <div class="step">
+        <span class="n">3단계</span>
+        <h3>매일 아침 확인하기</h3>
+        <p>학생이 체크하면 선생님 화면에 바로 나타납니다. 빠진 학생만 골라 상태를 누르고, 나머지는 한 번에 출석 처리합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="privacy">
+    <div class="block-head">
+      <span class="eyebrow">누가 무엇을 보나요</span>
+      <h2>공개 범위</h2>
+      <p>학생 정보는 필요한 사람에게만 보입니다. 접근 규칙은 서버에서 적용되므로 화면을 조작해도 바뀌지 않습니다.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>항목</th><th>선생님</th><th>학생 (참여자)</th><th>보기 권한만 있는 사람</th></tr></thead>
+        <tbody>
+          <tr><td>반 이름 · 학생 명단</td><td class="y">보기 · 수정</td><td class="y">보기</td><td class="x">볼 수 없음</td></tr>
+          <tr><td>전체 출결 기록 · 통계</td><td class="y">보기 · 수정</td><td class="x">볼 수 없음</td><td class="x">볼 수 없음</td></tr>
+          <tr><td>내 출석 체크 기록</td><td class="y">전원 보기</td><td class="y">본인 것만</td><td class="x">볼 수 없음</td></tr>
+          <tr><td>선생님 메모</td><td class="y">보기 · 수정</td><td class="x">볼 수 없음</td><td class="x">볼 수 없음</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="block" id="faq">
+    <div class="block-head">
+      <span class="eyebrow">자주 묻는 질문</span>
+      <h2>궁금한 점</h2>
+    </div>
+    <div class="faq">
+      <details><summary>학생이 다른 친구 이름으로 출석하면 어떻게 되나요?</summary>
+        <p>한 학생 이름을 두 계정 이상이 고르면 선생님 화면에 경고가 뜨고, 어느 계정이 체크했는지 이름이 함께 보입니다. ‘학생 명단’ 탭에서 잘못된 연결을 해제하면 됩니다.</p></details>
+      <details><summary>학생이 이름을 잘못 골랐어요.</summary>
+        <p>선생님이 ‘학생 명단’ 탭에서 그 계정의 연결을 해제하면 학생이 다시 고를 수 있습니다. 해제하면 그 계정의 자가출석 기록도 함께 지워집니다.</p></details>
+      <details><summary>학생 자가 체크가 그대로 최종 기록이 되나요?</summary>
+        <p>아닙니다. 자가 체크는 참고로 표시되고, 선생님이 상태 버튼을 누르면 선생님 기록이 우선합니다. 확정하지 않은 자가 체크는 통계에서 출석 또는 지각으로 계산됩니다.</p></details>
+      <details><summary>학생도 계정이 있어야 하나요?</summary>
+        <p>네. 학생도 학교 Claude 계정으로 로그인해야 출석 체크를 할 수 있습니다.</p></details>
+      <details><summary>지난 날짜의 출결도 고칠 수 있나요?</summary>
+        <p>네. 출결 탭의 날짜 선택에서 원하는 날을 고르면 그날 기록을 보고 고칠 수 있습니다.</p></details>
+    </div>
+  </section>
+
+  <section class="final">
+    <h2>오늘 아침 조회부터 써 보세요</h2>
+    <a class="btn primary" href="https://claude.ai/artifact/LGFMZBCt3kPxZDBjJ5KD9g" target="_blank" rel="noopener">출석부 열기</a>
+    <div class="url"><span id="app-url">https://claude.ai/artifact/LGFMZBCt3kPxZDBjJ5KD9g</span><button type="button" id="copy-url">주소 복사</button></div>
+  </section>
+
+  <footer>우리반 출석부 · 예시 화면의 학생 이름은 실제 학생이 아닙니다.</footer>
+</div>
+
+<script>
+const ST = [["present","출석"],["late","지각"],["early","조퇴"],["skip","결과"],["absent","결석"]];
+const demo = [
+  { no: 1, name: "강서연", s: "present", note: "자가 08:21" },
+  { no: 2, name: "김도현", s: "late", note: "자가 08:47" },
+  { no: 3, name: "박지우", s: "present", note: "자가 08:30" },
+  { no: 4, name: "이준서", s: "absent", note: "미인정" },
+  { no: 5, name: "최하은", s: null, note: "" },
+];
+function renderDemo() {
+  const counts = Object.fromEntries(ST.map(([k]) => [k, 0])); let none = 0;
+  demo.forEach(d => d.s ? counts[d.s]++ : none++);
+  const c = document.getElementById("demo-counts"); c.replaceChildren();
+  for (const [k, l] of ST) { const s = document.createElement("span"); s.className = "chip s-" + k; s.append(l + " "); const b = document.createElement("b"); b.textContent = counts[k]; s.append(b); c.append(s); }
+  const n = document.createElement("span"); n.className = "chip"; n.style.color = "var(--muted)"; n.append("미확인 "); const nb = document.createElement("b"); nb.textContent = none; n.append(nb); c.append(n);
+  const rows = document.getElementById("demo-rows"); rows.replaceChildren();
+  demo.forEach((d, i) => {
+    const line = document.createElement("div"); line.className = "line";
+    const no = document.createElement("span"); no.className = "no"; no.textContent = d.no;
+    const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = d.name;
+    if (d.note) { const sm = document.createElement("small"); sm.textContent = d.note; nm.append(sm); }
+    const seg = document.createElement("div"); seg.className = "seg"; seg.setAttribute("role", "group"); seg.setAttribute("aria-label", d.name + " 출결");
+    for (const [k, l] of ST) {
+      const b = document.createElement("button"); b.type = "button"; b.id = "demo-" + i + "-" + k;
+      b.className = k + (d.s === k ? " on" : ""); b.textContent = l; b.setAttribute("aria-pressed", d.s === k ? "true" : "false");
+      b.addEventListener("click", () => { d.s = d.s === k ? null : k; renderDemo(); document.getElementById(b.id)?.focus(); });
+      seg.append(b);
+    }
+    line.append(no, nm, seg); rows.append(line);
+  });
+}
+renderDemo();
+document.getElementById("copy-url").addEventListener("click", e => {
+  const url = document.getElementById("app-url").textContent, btn = e.currentTarget;
+  const done = () => { btn.textContent = "복사됨"; setTimeout(() => btn.textContent = "주소 복사", 1800); };
+  const fallback = () => { const r = document.createRange(); r.selectNodeContents(document.getElementById("app-url")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = "Ctrl+C로 복사"; };
+  try { navigator.clipboard.writeText(url).then(done, fallback); } catch { fallback(); }
+});
+</script>
+
+</body>
+</html>
